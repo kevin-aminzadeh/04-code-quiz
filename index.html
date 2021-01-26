@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+    <title>Code Quiz</title>
+  </head>
+  <body
+    class="h-100 d-flex flex-column justify-content-center bg-dark text-light"
+  >
+    <div class="container py-5 text-center">
+      <div class="row">
+        <div class="col ms-auto text-end">
+          <div class="invisible" id="score-element">
+            <h3 class="text-uppercase text-light fw-light">
+              Score: <span class="fw-bold h2 text-warning" id="score"></span>
+            </h3>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col-10 mx-auto" id="question-wrapper">
+          <h1 class="fw-bold display-1" id="question-text">
+            Coding Quiz Challenge
+          </h1>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-10 col-lg-7 mx-auto" id="choices-wrapper">
+          <p class="lead" id="intro">
+            Try to answer the following code-related questions within the time
+            limit. Keep in mind that incorrect answers will penalize your
+            score/time by ten seconds!
+          </p>
+          <ul class="nav flex-column d-none" id="choices-list"></ul>
+        </div>
+      </div>
+      <div class="d-grid gap-2 col-3 mx-auto mt-4" id="intro-btn-wrapper">
+        <button
+          class="btn btn-lg btn-warning text-uppercase"
+          onClick="quiz.startQuiz()"
+        >
+          Start Quiz
+        </button>
+        <button
+          class="btn btn-lg btn-info text-uppercase"
+          onClick="quiz.startQuiz()"
+        >
+          View Highscores
+        </button>
+      </div>
+
+      <div class="row d-none">
+        <div class="col-6 mx-auto">
+          <hr />
+          <p class="text-success text-start">Correct!</p>
+        </div>
+      </div>
+    </div>
+    <script src="./assets/js/app.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
