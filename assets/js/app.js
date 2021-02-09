@@ -1,76 +1,364 @@
+/*
+--------------------------------------
+  Application View Class Declarations
+--------------------------------------
+*/
+
+// Intro View
+class IntroView {
+  constructor(app) {
+    // Get App Object
+    this.app = app;
+
+    // Intro View Component Template
+    this.template = `
+      <section class="" id="intro">
+        <div class="container py-5 text-center">
+          <div class="row mt-5">
+            <div class="col-10 mx-auto">
+              <h1 class="fw-bold display-1" id="intro-heading">
+                Coding Quiz Challenge
+              </h1>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-10 col-lg-7 mx-auto">
+              <p class="lead" id="intro-text">
+                Try to answer the following code-related questions within the
+                time limit. Keep in mind that incorrect answers will penalize
+                your score/time by ten seconds!
+              </p>
+              <ul class="nav flex-column d-none" id="choices-list"></ul>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 col-3 mx-auto mt-4" id="intro-btn-wrapper">
+            <button
+              class="btn btn-lg btn-warning text-uppercase"
+              id="start-btn"
+            >
+              Start Quiz
+            </button>
+            <button
+              class="btn btn-lg btn-info text-uppercase"
+              id="highscores-btn"
+            >
+              View Highscores
+            </button>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  render() {
+    this.app.root.innerHTML = this.template;
+  }
+
+  attachEventHandlers() {
+    document.querySelector("#start-btn").addEventListener("click", () => {
+      this.app.startQuiz();
+    });
+    document.querySelector("#highscores-btn").addEventListener("click", () => {
+      this.app.showLeaderboard();
+    });
+  }
+}
+
+// Question View
+class QuestionView {
+  constructor(app) {
+    this.questionText;
+    this.choiceList;
+    this.app = app;
+
+    this.template = `
+      <!-- Question View -->
+      <section id="question">
+        <div class="container py-5">
+          <div class="row">
+            <div class="col ms-auto text-end" id="score-wrapper">
+
+            </div>
+          </div>
+          <div class="row mt-5">
+            <div class="col-8 mx-auto">
+              <h1 class="fw-bold" id="question-text"></h1>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-8 mx-auto">
+              <ul class="nav flex-column" id="choice-list"></ul>
+            </div>
+          </div>
+
+          <div class="row invisible" id="feedback-wrapper">
+            <div class="col-6 mx-auto">
+              <hr />
+              <p class="text-start" id="feedback"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  attachEventHandlers() {}
+
+  setQuestion(question) {
+    while (question) {
+      if (this.questionText && this.choiceList) {
+        this.questionText.innerHTML = "";
+        this.choiceList.innerHTML = "";
+      }
+
+      this.questionText.textContent = question.prompt;
+
+      // Iteratively Render Each Choice as a Button Element with the Appropriate CSS Classes, Text & Data Attribute in the DOM
+      for (const choice in question.choices) {
+        const choiceLiElement = document.createElement("li");
+        const choiceBtnElement = document.createElement("button");
+
+        // Add Necessary CSS classes to the Elements
+        choiceLiElement.classList.add("nav-item", "nav-link");
+        choiceBtnElement.classList.add("btn", "btn-primary", "choice-btn");
+
+        // Set Button Text
+        choiceBtnElement.textContent = `${parseInt(choice) + 1}. ${
+          question.choices[choice]
+        }`;
+
+        // Set the choice array index value as a data attribute on the button element
+        choiceBtnElement.setAttribute("data-index", parseInt(choice));
+
+        choiceBtnElement.addEventListener("click", (e) => {
+          this.app.nextQuestion(e.target.dataset.index);
+        });
+
+        // Add Choice Buttons to the Choices List as List Items
+        choiceLiElement.appendChild(choiceBtnElement);
+        this.choiceList.appendChild(choiceLiElement);
+      }
+      break;
+    }
+  }
+
+  render() {
+    this.app.root.innerHTML = this.template;
+    document.querySelector("#feedback-wrapper").classList.add("invisible");
+    this.questionText = document.querySelector("#question-text");
+    this.choiceList = document.querySelector("#choice-list");
+  }
+
+  renderFeedback(isCorrect) {
+    document.querySelector("#feedback-wrapper").classList.remove("invisible");
+    const feedbackText = document.querySelector("#feedback");
+    if (isCorrect) {
+      feedbackText.classList.remove("text-danger");
+      feedbackText.classList.add("text-success");
+      feedbackText.textContent = "Correct!";
+    } else {
+      feedbackText.classList.add("text-danger");
+      feedbackText.classList.remove("text-success");
+      feedbackText.textContent = "Incorrect!";
+    }
+  }
+}
+
+// Outro View
+class OutroView {
+  constructor(app) {
+    this.app = app;
+    this.template = `
+      <!-- Outro View  -->
+      <section id="outro">
+        <div class="container">
+          <div class="row mt-5">
+            <div class="col-8 mx-auto">
+              <h1 class="fw-bold" id="outro-heading">All done!</h1>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-8 mx-auto">
+              <p class="lead" id="outro-text">Your final score is <strong><span id="final-score"></span></strong>.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-8 mx-auto">
+              <form class="row row-cols-lg-auto mt-3 align-items-center g-2" id="highscore-form">
+
+                <div class="col-auto">
+                  <label class="visually-hidden" for="playerNameInput"
+                    >Name</label
+                  >
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="playerNameInput"
+                      placeholder="Enter Your Initials"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-auto">
+                  <button
+                    type="submit"
+                    class="btn btn-warning text-uppercase"
+                    id="submit-btn"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>    
+    `;
+  }
+
+  render(finalScore) {
+    this.app.root.innerHTML = this.template;
+    document.querySelector("#final-score").textContent = finalScore;
+  }
+
+  attachEventHandlers() {
+    const highscoreForm = document.querySelector("#highscore-form");
+    highscoreForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.app.submitHighScore(e.target[0].value);
+    });
+  }
+}
+
+class LeaderBoardView {
+  constructor(app) {
+    this.app = app;
+    this.template = `
+      <!-- Leaderboard View -->
+      <section id="leaderboard">
+        <div class="container text-center">
+          <div class="row mt-5">
+            <div class="col-8 mx-auto">
+              <h1 class="fw-bold display-1" id="leaderboard-heading">
+                Leaderboard
+              </h1>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-8 mx-auto">
+              <ul class="nav flex-column" id="leaderboard-list">
+
+              </ul>
+            </div>
+          </div>
+
+          <div class="row mt-5">
+            <div class="col-8 mx-auto">
+              <button
+                class="btn btn-lg btn-info text-uppercase"
+                id="back-btn"
+              >
+                Go Back
+              </button>
+              <button
+                class="btn btn-lg btn-warning text-uppercase"
+                id="clear-btn"
+              >
+                Clear Highscores
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>      
+    `;
+  }
+
+  render(scores) {
+    this.app.root.innerHTML = this.template;
+    const leaderboardList = document.querySelector("#leaderboard-list");
+
+    if (scores) {
+      for (const score of scores) {
+        const leaderboardItem = document.createElement("li");
+        leaderboardItem.classList.add("nav-item");
+        leaderboardItem.innerHTML = `<h4>${score.name} - ${score.score}</h4>`;
+        leaderboardList.appendChild(leaderboardItem);
+      }
+    } else {
+      leaderboardList.innerHTML = `<p>There are no highscores to display.</p>`;
+    }
+  }
+
+  attachEventHandlers() {
+    document.querySelector("#back-btn").addEventListener("click", () => {
+      this.app.onInit();
+    });
+
+    document.querySelector("#clear-btn").addEventListener("click", () => {
+      this.app.clearHighScores();
+    });
+  }
+}
+
+class TimerView {
+  constructor(app) {
+    this.app = app;
+    this.scoreText;
+    this.template = `
+      <div id="score-element">
+        <h3 class="text-uppercase text-light fw-light">
+          Score:
+          <span class="fw-bold h2 text-warning" id="score"></span>
+        </h3>
+      </div>
+    `;
+  }
+
+  render() {
+    this.app.root.querySelector("#score-wrapper").innerHTML = this.template;
+    this.scoreText = document.querySelector("#score");
+    this.scoreText.textContent = this.app.score;
+  }
+
+  update(scoreValue) {
+    this.scoreText.textContent = scoreValue;
+  }
+}
+
+/*
+--------------------------------------
+  Application Model Class Declarations
+--------------------------------------
+*/
+
 // Question Class Definiton
 class Question {
-  constructor(question, answerIndex, choices) {
-    this.question = question;
-    this.answer = answerIndex;
+  constructor(prompt, answerIndex, choices) {
+    this.prompt = prompt;
+    this.answerIndex = answerIndex;
     this.choices = choices;
 
     // DOM Elements
     this.questionSection = document.querySelector("#question");
     this.questionTextElement = document.querySelector("#question-text");
-    this.choicesListElement = document.querySelector("#choices-list");
+    this.choicesListElement = document.querySelector("#choice-list");
   }
 
   isCorrect(choiceIndex) {
-    if (choiceIndex == this.answer) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  // Render Question Text in the DOM
-  renderQuestion() {
-    this.questionSection.classList.remove("d-none");
-    this.questionTextElement.classList.remove("display-1");
-    this.questionTextElement.textContent = this.question;
-  }
-
-  // Render Answer Choices in the DOM
-  renderChoices() {
-    // Remove Previous Choice Buttons if They Exist in the Choice List DOM Element
-    if (this.choicesListElement.hasChildNodes()) {
-      this.choicesListElement
-        .querySelectorAll("*")
-        .forEach((node) => node.remove());
-    }
-
-    // Iteratively Render Each Choice as a Button Element with the Appropriate CSS Classes, Text & Data Attribute in the DOM
-    for (const choice in this.choices) {
-      const choiceLiElement = document.createElement("li");
-      const choiceBtnElement = document.createElement("button");
-
-      // Add Necessary CSS classes to the Elements
-      choiceLiElement.classList.add("nav-item", "nav-link");
-      choiceBtnElement.classList.add("btn", "btn-primary", "choice-btn");
-
-      // Set Button Text
-      choiceBtnElement.textContent = `${parseInt(choice) + 1}. ${
-        this.choices[choice]
-      }`;
-
-      // Set the choice array index value as a data attribute on the button element
-      choiceBtnElement.setAttribute("data-index", parseInt(choice));
-
-      // Add Event Listener To Each Choice Button
-      choiceBtnElement.addEventListener("click", (e) => {
-        quiz.nextQuestion(e);
-      });
-
-      // Add Choice Buttons to the Choices List as List Items
-      choiceLiElement.appendChild(choiceBtnElement);
-      this.choicesListElement.appendChild(choiceLiElement);
-
-      // Unhide Choices List Element
-      this.choicesListElement.classList.remove("d-none");
-    }
+    return parseInt(choiceIndex) === this.answerIndex;
   }
 }
 
-// Quiz Class Definiton
+// Quiz Model Class Definition
 class Quiz {
-  constructor() {
-    // Questions Array
+  constructor(app) {
+    // Question Dataset
     this.questions = [
       new Question("Commonly used data types DO NOT include ____.", 2, [
         "strings",
@@ -101,101 +389,145 @@ class Quiz {
       ),
     ];
 
-    this.currentQuestion = 0;
-    this.maxTime = 75;
-    this.score = this.maxTime;
-    this.quizOver = false;
-
-    // DOM Element References
-
-    // Intro View Elements
-    this.introSection = document.querySelector("#intro");
-
-    // Question View Elements
-    this.questionSection = document.querySelector("#question");
-    this.scoreElement = document.querySelector("#score-element");
-    this.scoreText = document.querySelector("#score");
-    this.questionTextElement = document.querySelector("#question-text");
-    this.choicesListElement = document.querySelector("#choices-list");
-
-    // Outro View Elements
-    this.outroSection = document.querySelector("#outro");
-    this.outroText = document.querySelector("#outro-text");
+    this.app = app;
+    this.currentQuestionIndex = 0;
   }
 
-  nextQuestion(e) {
-    // Get the Index Data Attribue From Choice Button Element
-    let choiceIndex = e.target.dataset.index;
+  onInit() {
+    this.currentQuestionIndex = 0;
+    return this.getCurrentQuestion();
+  }
 
-    switch (this.questions[this.currentQuestion].isCorrect(choiceIndex)) {
-      case true:
-        console.log("Correct!");
-        break;
+  getCurrentQuestion() {
+    return this.questions[this.currentQuestionIndex];
+  }
 
-      case false:
-        console.log("Incorrect!");
-        this.score -= 10;
-        break;
-    }
-    this.currentQuestion++;
-
-    if (this.currentQuestion < this.questions.length) {
-      // Render Next Question
-      this.questions[this.currentQuestion].renderQuestion();
-      this.questions[this.currentQuestion].renderChoices();
+  getNextQuestion() {
+    if (this.currentQuestionIndex < this.questions.length - 1) {
+      this.currentQuestionIndex++;
+      return this.getCurrentQuestion();
     } else {
-      this.quizOver = true;
+      this.app.quizOver = true;
     }
+  }
+
+  checkAnswer(choiceIndex) {
+    if (choiceIndex) {
+      return this.questions[this.currentQuestionIndex].isCorrect(choiceIndex);
+    }
+  }
+}
+
+class LeaderboardModel {
+  constructor() {}
+
+  getScores() {
+    const scores = JSON.parse(localStorage.getItem("highscores"));
+    return scores;
+  }
+
+  setScore(name, score) {
+    let scores = [];
+    const playerScore = {
+      name: name,
+      score: score,
+    };
+
+    if (JSON.parse(localStorage.getItem("highscores"))) {
+      scores = JSON.parse(localStorage.getItem("highscores"));
+      scores.push(playerScore);
+    } else {
+      scores.push(playerScore);
+    }
+    localStorage.setItem("highscores", JSON.stringify(scores));
+  }
+
+  clearScores() {
+    localStorage.clear();
+  }
+}
+
+/*
+--------------------------------------
+  Application Controller Class Declarations
+--------------------------------------
+*/
+
+// Quiz Controller Class Definition
+class App {
+  constructor() {
+    this.quizOver = false;
+    this.timeLimit = 75;
+    this.score;
+
+    // Get App Root Element From DOM
+    this.root = document.querySelector(".app-root");
+
+    // Instantiate View Classes
+    this.introView = new IntroView(this);
+    this.questionView = new QuestionView(this);
+    this.timerView = new TimerView(this);
+    this.OutroView = new OutroView(this);
+    this.leaderBoardView = new LeaderBoardView(this);
+
+    this.quiz = new Quiz(this);
+    this.leaderboard = new LeaderboardModel(this);
+  }
+
+  // Render Intro View on Init
+  onInit() {
+    this.score = this.timeLimit;
+    this.quizOver = false;
+    this.introView.render();
+    this.introView.attachEventHandlers();
   }
 
   startQuiz() {
-    this.render();
-
+    this.questionView.render();
+    this.questionView.setQuestion(this.quiz.onInit());
+    this.questionView.attachEventHandlers();
+    this.timerView.render();
     let timer = setInterval(() => {
       this.score--;
-      this.scoreText.textContent = this.score;
+      this.timerView.update(this.score);
 
-      if (this.score <= 0 || this.quizOver === true) {
+      if (this.quizOver || this.score <= 0) {
         clearInterval(timer);
         this.endQuiz();
       }
     }, 1000);
   }
 
-  endQuiz() {
-    // Set Quiz State To Ended
-    console.log("Quiz Has Ended!");
-    this.questionSection.classList.add("d-none");
-    this.outroSection.classList.remove("d-none");
-
-    // Display End of Quiz View Elements
-    this.outroText.innerHTML = `Your final score is <strong>${this.score}</strong>.`;
-
-    this.questionTextElement.textContent = "All done!";
-
-    // Hide Score Component Elements
-    this.scoreElement.classList.add("invisible");
-
-    // Remove Choice Component Elements
-    this.choicesListElement
-      .querySelectorAll("*")
-      .forEach((node) => node.remove());
-
-    // Hide choice-list DIV
-    this.choicesListElement.classList.add("d-none");
+  nextQuestion(choiceIndex) {
+    if (!this.quiz.checkAnswer(choiceIndex)) {
+      this.score -= 10;
+      this.timerView.update(this.score);
+    }
+    this.questionView.renderFeedback(this.quiz.checkAnswer(choiceIndex));
+    this.questionView.setQuestion(this.quiz.getNextQuestion());
   }
 
-  render() {
-    console.log("Quiz Started!");
-    // Hide Intro Content
-    this.introSection.classList.add("d-none");
+  endQuiz() {
+    this.OutroView.render(this.score);
+    this.OutroView.attachEventHandlers();
+  }
 
-    // Unhide Timer Element
-    this.scoreElement.classList.remove("invisible");
-    // Render Question Content
-    this.questions[this.currentQuestion].renderQuestion();
-    this.questions[this.currentQuestion].renderChoices();
+  submitHighScore(playerName) {
+    this.leaderboard.setScore(playerName, this.score);
+    this.showLeaderboard(this.leaderboard.getScores());
+  }
+
+  showLeaderboard(scores) {
+    this.leaderBoardView.render(this.leaderboard.getScores());
+    this.leaderBoardView.attachEventHandlers();
+  }
+
+  clearHighScores() {
+    this.leaderboard.clearScores();
+    this.leaderBoardView.render();
+    this.leaderBoardView.attachEventHandlers();
   }
 }
 
-let quiz = new Quiz();
+let app = new App();
+app.onInit();
