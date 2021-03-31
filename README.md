@@ -4,7 +4,7 @@
   <img src="./assets/img/screenshot.gif" alt="JavaScript code quiz game screenshot">
 </p>
 
-> <h2 align="center"><a  href="https://kevin-aminzadeh.github.io/04-code-quiz/">Live Demo</a></h2>
+> <h2 align="center"><a  href="https://kevin-aminzadeh.github.io/javascript-code-quiz/">Live Demo</a></h2>
 
 ## Table of Contents
 
